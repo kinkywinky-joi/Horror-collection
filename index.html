@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Horror Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Pirata+One&family=Special+Elite&family=Staatliches&display=swap" rel="stylesheet">
+<style>
+  :root { --night:#140b0c; --shelf:#1f1213; --blood:#a3131b; --bone:#e9e0cc; --dust:#9b8f7a; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--bone); line-height: 1.5;
+    background: radial-gradient(ellipse at 50% -10%, #3a1114 0%, transparent 60%), var(--night);
+    font-family: "Special Elite", "Courier New", monospace;
+  }
+  header { text-align: center; padding: 64px 20px 24px; }
+  h1 {
+    font-family: "Pirata One", Georgia, serif; font-weight: 400;
+    font-size: clamp(3rem, 11vw, 7rem); line-height: 1; margin: 0;
+    color: var(--blood); text-shadow: 0 0 24px rgba(163,19,27,.55);
+    animation: flicker 2.4s linear 1;
+  }
+  .for { font-size: 1.15rem; margin: 18px 0 0; }
+  .note { max-width: 46ch; margin: 10px auto 0; color: var(--dust); }
+
+  nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 8px 20px 0; }
+  nav a {
+    color: var(--bone); text-decoration: none; font-size: .85rem;
+    border: 1px solid #3a2224; padding: 4px 12px; border-radius: 3px;
+  }
+  nav a:hover, nav a:focus-visible { border-color: var(--blood); outline: none; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 20px 80px; }
+  section { margin-top: 48px; scroll-margin-top: 16px; }
+  .tier-head { border-bottom: 1px solid #3a2224; padding-bottom: 10px; margin-bottom: 22px; }
+  h2 { font-family: "Pirata One", Georgia, serif; font-weight: 400; font-size: 2.1rem; margin: 0; color: var(--bone); }
+  .tier-head p { margin: 2px 0 0; color: var(--dust); }
+  .count { color: var(--blood); }
+
+  .grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .movie {
+    display: block; text-decoration: none; color: inherit; position: relative;
+    background: var(--shelf); border: 1px solid #3a2224; border-radius: 3px; overflow: hidden;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+  }
+  a.movie:hover, a.movie:focus-visible {
+    transform: translateY(-4px); border-color: var(--blood);
+    box-shadow: 0 10px 28px rgba(163,19,27,.35); outline: none;
+  }
+  .art { position: relative; aspect-ratio: 2/3; background: #2a1517; }
+  .art img { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: 16px; text-align: center; color: #6e5557;
+    font-family: "Pirata One", Georgia, serif; font-size: 1.6rem; line-height: 1.1;
+  }
+  .badge {
+    z-index: 2; position: absolute; left: 0; bottom: 0; right: 0; padding: 6px 10px;
+    background: rgba(20,11,12,.88); border-top: 2px solid var(--blood); font-size: .8rem;
+  }
+  .label { padding: 10px 12px 12px; }
+  .label strong { display: block; font-weight: 400; font-size: 1.05rem; line-height: 1.25; }
+  .yr { color: var(--dust); font-size: .85rem; }
+  .meta { margin: 6px 0 0; font-size: .8rem; color: var(--dust); }
+  .meta b { font-weight: 400; color: var(--bone); }
+
+  footer { text-align: center; color: var(--dust); padding: 0 20px 48px; }
+  @keyframes flicker {
+    0%,18%,22%,62%,66%,100% { opacity: 1; } 20%,64% { opacity: .15; } 68% { opacity: .6; }
+  }
+  @media (prefers-reduced-motion: reduce) { h1 { animation: none; } .movie { transition: none; } }
+
+  /* ===== Haunted video store ===== */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40; opacity: .07;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 41;
+    box-shadow: inset 0 0 160px rgba(0,0,0,.8);
+  }
+  .neon {
+    display: inline-block; margin-bottom: 22px; padding: 2px 18px;
+    font-family: "Staatliches", sans-serif; font-size: 1.5rem; letter-spacing: .2em;
+    color: #ff3b4a; border: 3px solid #ff3b4a; border-radius: 8px;
+    text-shadow: 0 0 6px #ff3b4a, 0 0 18px #a3131b;
+    box-shadow: 0 0 10px #a3131b, inset 0 0 8px #a3131b;
+    animation: buzz 5s linear 1;
+  }
+  .sticker {
+    display: inline-block; transform: rotate(-3deg); margin: 18px 0 0; padding: 2px 12px;
+    background: var(--bone); color: var(--night); font-size: .9rem;
+  }
+  nav a { font-family: "Staatliches", sans-serif; letter-spacing: .12em; background: #14090a; }
+
+  section {
+    position: relative; overflow: hidden; padding: 28px 24px 32px;
+    background: var(--panel); border: 1px solid var(--frame); border-radius: 6px;
+  }
+  section > * { position: relative; }
+  .tier-head { border-bottom-color: var(--frame); }
+  h2 { font-family: var(--head); color: var(--accent); text-shadow: 0 0 14px var(--glow); }
+  .count { color: var(--dust); }
+  .tier-head .prop { margin-top: 8px; font-size: .8rem; font-style: italic; color: var(--accent); }
+
+  .movie { background: var(--card); border-color: var(--frame); border-radius: var(--r, 3px); }
+  a.movie:hover, a.movie:focus-visible { border-color: var(--accent); box-shadow: 0 10px 28px var(--glow); }
+  .badge { border-top-color: var(--accent); }
+  .whisper {
+    position: absolute; top: 8px; left: 8px; right: 8px; z-index: 3; margin: 0; padding: 6px 8px;
+    background: rgba(0,0,0,.85); color: var(--accent); font-size: .78rem; font-style: italic;
+    opacity: 0; transition: opacity .25s; pointer-events: none;
+  }
+  .movie:hover .whisper, .movie:focus-visible .whisper { opacity: 1; }
+
+  /* Tier I: cold premiere crypt */
+  .t1 { --panel: linear-gradient(180deg,#0c1a24,#0a0f14); --card: #0f1c26; --frame: #2d4a5e;
+        --accent: #8fd3ff; --glow: rgba(143,211,255,.3); --head: "Pirata One", serif; }
+  .t1::before { content: ""; position: absolute; top: -40px; left: 50%; width: 70%; height: 260px;
+        transform: translateX(-50%); pointer-events: none;
+        background: radial-gradient(ellipse at top, rgba(143,211,255,.22), transparent 70%); }
+
+  /* Tier II: brass-lit vault with wood paneling */
+  .t2 { --panel: repeating-linear-gradient(90deg,#24160b 0 46px,#1d1208 46px 48px); --card: #2a1a0d;
+        --frame: #8a6a2f; --accent: #d9a441; --glow: rgba(217,164,65,.3); --head: "IM Fell English", serif; }
+  .t2 .movie { border-width: 3px; border-style: double; }
+
+  /* Tier III: moonlit graveyard, tombstone cards, ground fog */
+  .t3 { --panel: linear-gradient(180deg,#0b120f,#141c18 70%,#0b100d); --card: #16201b; --frame: #35483d;
+        --accent: #9fc9a8; --glow: rgba(159,201,168,.25); --head: "IM Fell English", serif;
+        --r: 999px 999px 3px 3px / 70px 70px 3px 3px; }
+  .t3 .label { text-align: center; }
+  .t3::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 140px;
+        pointer-events: none; background: linear-gradient(0deg, rgba(190,215,200,.14), transparent); }
+
+  /* Tier IV: grindhouse theater, film perforations, sepia prints */
+  .t4 { --panel: #1c1409; --card: #261a0c; --frame: #5c4524; --accent: #f2b134;
+        --glow: rgba(242,177,52,.28); --head: "Staatliches", sans-serif;
+        border-left: 14px dotted #6b5530; border-right: 14px dotted #6b5530; border-radius: 0; }
+  .t4 h2 { letter-spacing: .08em; font-size: 2.4rem; }
+  .t4 .movie { border-style: dashed; }
+  .t4 .art img { filter: sepia(.45) contrast(1.15) saturate(.9); }
+  .t4::before { content: attr(data-whisper); position: absolute; inset: 0; overflow: hidden;
+        font-size: .8rem; line-height: 1.6; letter-spacing: .1em; color: var(--accent);
+        opacity: .06; pointer-events: none; }
+
+  /* Tier V: clearance bin inside caution tape */
+  .t5 { --panel: #24180f; --card: #33231a; --frame: #6a4a30; --accent: #ffd84d;
+        --glow: rgba(255,216,77,.25); --head: "Special Elite", monospace;
+        border: 8px solid transparent;
+        border-image: repeating-linear-gradient(135deg,#ffd84d 0 14px,#14090a 14px 28px) 8; }
+  .t5 .movie:nth-child(odd) { transform: rotate(-1.2deg); }
+  .t5 .movie:nth-child(even) { transform: rotate(1deg); }
+  .t5 a.movie:hover, .t5 a.movie:focus-visible { transform: rotate(0) translateY(-4px); }
+  .t5 .movie::before { content: attr(data-tag); position: absolute; z-index: 2; top: 8px; right: -6px;
+        padding: 2px 10px; background: #ffd84d; color: #14090a; font-size: .78rem; transform: rotate(4deg); }
+
+  /* Flashlight mode and small extras */
+  #dark { position: fixed; inset: 0; z-index: 50; opacity: 0; pointer-events: none; transition: opacity .5s;
+        background: radial-gradient(circle 160px at var(--x,50%) var(--y,40%), transparent 0, transparent 40%, rgba(0,0,0,.96) 100%); }
+  body.dark #dark { opacity: 1; }
+  #lights { position: fixed; right: 16px; bottom: 16px; z-index: 60; font: inherit; cursor: pointer;
+        background: var(--night); color: var(--bone); border: 1px solid var(--blood); border-radius: 3px; padding: 8px 14px; }
+  #lights:focus-visible { outline: 2px solid var(--bone); }
+  .toast { position: fixed; left: 50%; top: 40%; transform: translate(-50%,-50%); z-index: 70; pointer-events: none;
+        font-family: "Pirata One", serif; font-size: clamp(2rem,9vw,5rem); color: var(--blood); text-shadow: 0 0 20px #000; }
+  .seven { opacity: 0; transition: opacity 1.5s; }
+  .seven:hover { opacity: .9; color: var(--blood); }
+  @keyframes buzz { 0%,10%,12%,50%,52%,100% { opacity: 1; } 11%,51% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { .neon { animation: none; } .t5 .movie { transform: none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="neon" aria-hidden="true">OPEN</div>
+  <h1 id="title"></h1>
+  <p class="for" id="forLine"></p>
+  <p class="note" id="note"></p>
+  <p class="sticker">Be kind, rewind.</p>
+</header>
+<nav id="nav" aria-label="Quality tiers"></nav>
+<main id="shelf"></main>
+<footer id="footer"></footer>
+
+<div id="dark" aria-hidden="true"></div>
+<button id="lights" type="button" aria-pressed="false">Lights: on</button>
+
+<script>
+  /* ============ EDIT THIS SECTION ============ */
+
+  const SITE = {
+    title: "The Horror Library",
+    friendName: "khhnnk",
+    note: "Happy birthday! Pick a poster, turn off the lights, press play.",
+    footer: "Made for you with love and a little dread."
+  };
+
+  /* For each movie:
+       t = title, y = year, q = best quality, a = audio / subtitles, n = notes
+       p = poster image (e.g. "posters/exhuma.jpg"), l = your cloud link
+     Leave p or l as "" until you have them. Without a poster the card shows the
+     title; without a link the card is not clickable. */
+
+  const TIERS = [
+    { name: "Tier I: The Crypt of Ultra HD", desc: "4K with HDR or REMUX", movies: [
+      { t:"Suspiria", y:"1977", q:"2160p UHD HDR", a:"", n:"", p:"posters/suspiria.jpg", l:"https://transfer.it/t/ALHcGctVWTxb" },
+      { t:"Nosferatu", y:"1979", q:"2160p HDR REMUX", a:"", n:"", p:"posters/nosferatu.jpg", l:"https://transfer.it/t/9qoIfYsjVZ4a" },
+      { t:"Evil Dead Rise", y:"2023", q:"2160p HDR", a:"7.1", n:"", p:"posters/evil-dead-rise.jpg", l:"https://gofile.io/d/nEcly3" },
+      { t:"Undertone", y:"", q:"4K HDR", a:"5.1", n:"Also in 1080p", p:"posters/undertone.jpg", l:"https://transfer.it/t/awPlvOwH0Dwb" },
+      { t:"Psycho Killer", y:"2026", q:"4K HDR10", a:"ENG subs", n:"Also in 1080p", p:"posters/psycho-killer.jpg", l:"https://gofile.io/d/owQR65" }
+    ]},
+    { name: "Tier II: The Haunted 4K Vault", desc: "4K, HDR not specified", movies: [
+      { t:"Exhuma", y:"", q:"4K UHD", a:"", n:"", p:"posters/exhuma.jpg", l:"https://transfer.it/t/NEB4BMsTiBRA" },
+      { t:"Pet Sematary", y:"1989", q:"2160p Blu-ray rip", a:"", n:"", p:"posters/pet-sematary.jpg", l:"https://transfer.it/t/zHgqYRkFSRLb" },
+      { t:"The Witch (Robert Eggers)", y:"", q:"2160p / Blu-ray", a:"", n:"", p:"posters/the-witch.jpg", l:"https://transfer.it/t/jyggSmoXmbZK" },
+      { t:"Nosferatu", y:"2024", q:"4K", a:"ENG subs", n:"Extended cut; also in 1080p", p:"posters/nosferatu.jpg", l:"https://transfer.it/t/895hJm8x3BgA" },
+      { t:"Lee Cronin's The Mummy", y:"", q:"4K", a:"5.1", n:"Also in 1080p", p:"posters/lee-cronins-the-mummy.jpg", l:"" },
+      { t:"Faces of Death", y:"", q:"4K", a:"5.1", n:"Also in 1080p", p:"posters/faces-of-death.jpg", l:"https://transfer.it/t/bEsNXSgBWTiR" },
+      { t:"Obsession", y:"2026", q:"4K", a:"5.1", n:"Also in 1080p", p:"posters/obsession.jpg", l:"https://gofile.io/d/Ho0OGX" },
+      { t:"Frankenstein", y:"2025", q:"4K WEB", a:"", n:"Also in 1080p", p:"posters/frankenstein.jpg", l:"https://transfer.it/t/gkkCtJlRTRwJ" }
+    ]},
+    { name: "Tier III: Blu-ray Graveyard", desc: "1080p REMUX and Blu-ray", movies: [
+      { t:"It Comes at Night", y:"", q:"1080p REMUX", a:"ENG subs", n:"", p:"posters/it-comes-at-night.jpg", l:"https://transfer.it/t/fITArt53HB6Q" },
+      { t:"MadS", y:"2024", q:"1080p REMUX", a:"", n:"", p:"posters/mads.jpg", l:"https://transfer.it/t/VXKBqFsRBBKJ" },
+      { t:"Possession", y:"1981", q:"1080p Blu-ray", a:"Multi-audio", n:"", p:"posters/possession.jpg", l:"https://transfer.it/t/BOQ0esx3AJ6D" },
+      { t:"Ju-on: The Grudge", y:"2002", q:"1080p Blu-ray", a:"ENG subs and audio", n:"", p:"posters/ju-on-the-grudge.jpg", l:"https://transfer.it/t/B23FDgwR2ZCT" },
+      { t:"Carrie", y:"1976", q:"1080p Blu-ray", a:"Multi-language", n:"Includes extras", p:"posters/carrie.jpg", l:"https://transfer.it/t/QntVe143mDoQ" },
+      { t:"Blair Witch", y:"1999", q:"1080p Blu-ray", a:"", n:"Festival cut", p:"posters/blair-witch.jpg", l:"https://transfer.it/t/Ga5wHR8TwRQZ" },
+      { t:"The Changeling", y:"1980", q:"1080p Blu-ray", a:"ENG subs", n:"", p:"posters/the-changeling.jpg", l:"https://transfer.it/t/VCVKK4pjyRgK" },
+      { t:"The Brood", y:"1979", q:"1080p Blu-ray", a:"ENG subs", n:"", p:"posters/the-brood.jpg", l:"https://transfer.it/t/ssHwbsoDRTBL" },
+      { t:"The Entity", y:"1982", q:"1080p Blu-ray", a:"", n:"", p:"posters/the-entity.jpg", l:"https://transfer.it/t/56l8b0wl3RCS" },
+      { t:"Ring", y:"1998", q:"1080p Blu-ray", a:"", n:"", p:"posters/ring.jpg", l:"https://transfer.it/t/jkRf9N9jEDSK" },
+      { t:"Demonic", y:"", q:"1080p Blu-ray rip", a:"", n:"", p:"posters/demonic.jpg", l:"https://transfer.it/t/O9OgjrgFWTyK" }
+    ]},
+    { name: "Tier IV: Grindhouse Classics", desc: "1080p 35mm scans and open matte", movies: [
+      { t:"The Shining", y:"1980", q:"1080p 35mm scan", a:"", n:"Kubrick US cut", p:"posters/the-shining.jpg", l:"https://transfer.it/t/fCtDj2xxDTgZ" },
+      { t:"Alien", y:"1979", q:"1080p 35mm scan", a:"", n:"", p:"posters/alien.jpg", l:"https://transfer.it/t/4fyez2wziT6R" },
+      { t:"The Thing", y:"1982", q:"1080p 35mm scan", a:"", n:"", p:"posters/the-thing.jpg", l:"https://transfer.it/t/ay1qL7hXnRBT" },
+      { t:"Hellraiser", y:"1987", q:"1080p 35mm scan", a:"ENG subs", n:"Clive Barker", p:"posters/hellraiser.jpg", l:"https://transfer.it/t/JMf7e7xlVZ5D" },
+      { t:"The Texas Chainsaw Massacre", y:"1974", q:"1080p 35mm scan", a:"", n:"", p:"posters/the-texas-chainsaw-massacre.jpg", l:"https://transfer.it/t/bXkP7i5V2JaR" },
+      { t:"The Wicker Man", y:"", q:"1080p 35mm scan", a:"", n:"", p:"posters/the-wicker-man.jpg", l:"https://transfer.it/t/XTPhvrwBhTBD" },
+      { t:"Inferno", y:"1980", q:"1080p 35mm scan", a:"", n:"", p:"posters/inferno.jpg", l:"https://transfer.it/t/GZ28j7oDFBrJ" },
+      { t:"Evil Dead 1 and 2", y:"1981, 1987", q:"1080p open matte", a:"", n:"Two films", p:"posters/evil-dead-1981.jpg", l:"https://transfer.it/t/NXl8e2pnDL6b" }
+    ]},
+    { name: "Tier V: The Fresh Kills", desc: "Standard 1080p", movies: [
+      { t:"Hokum", y:"2026", q:"1080p", a:"ENG subs", n:"", p:"posters/hokum.jpg", l:"https://transfer.it/t/iERwifhVXDKB" },
+      { t:"Iron Lung", y:"", q:"1080p", a:"ENG subs", n:"", p:"posters/iron-lung.jpg", l:"https://transfer.it/t/oQ3RnfhzQRxK" },
+      { t:"Evil Dead", y:"2013", q:"1080p", a:"", n:"Unrated", p:"posters/evil-dead-2013.jpg", l:"https://transfer.it/t/uLrSKqxxyT6C" },
+      { t:"Hereditary", y:"2018", q:"1080p", a:"", n:"", p:"posters/hereditary.jpg", l:"https://gofile.io/d/hZfT6k" },
+      { t:"The Exorcist", y:"1973", q:"1080p", a:"", n:"", p:"posters/the-exorcist.jpg", l:"https://gofile.io/d/Rb7JEc" },
+      { t:"Exit 8", y:"", q:"1080p", a:"", n:"", p:"posters/exit-8.jpg", l:"https://transfer.it/t/TDDcyShT3ZyQ" },
+      { t:"Passenger", y:"2026", q:"1080p", a:"", n:"", p:"posters/passenger.jpg", l:"https://transfer.it/t/kCkuzehnhTjb" },
+      { t:"Evil Dead Burn", y:"2026", q:"1080p", a:"", n:"", p:"posters/evil-dead-burn.jpg", l:"https://gofile.io/d/BotjSr" },
+      { t:"The Vvitch", y:"2015", q:"1080p", a:"", n:"", p:"posters/the-witch.jpg", l:"https://transfer.it/t/umYuAn1DBBhY" }
+    ]}
+  ];
+
+  // Props pinned to each aisle (one per tier, in order)
+  const PROPS = [
+    "Room 237 key on the hook. Please return it.",
+    "Lament Configuration in storage. Do not solve.",
+    "Sometimes, dead is better.",
+    "Admit one. Midnight double feature.",
+    "Free chestburster with every purchase."
+  ];
+  // Price stickers for the clearance bin (they cycle)
+  const TAGS = ["$6.66", "7 days", "$19.99 or your soul", "No refunds after midnight", "$13.00"];
+  // Hover whispers, keyed by exact title
+  const EGGS = {
+    "The Shining": "Redrum. Here's Johnny.",
+    "Alien": "In space, no one can hear you scream.",
+    "The Thing": "Trust no one. Test the blood.",
+    "Hellraiser": "We have such sights to show you.",
+    "The Texas Chainsaw Massacre": "Who will survive, and what will be left of them?",
+    "The Wicker Man": "Welcome to Summerisle.",
+    "Evil Dead 1 and 2": "Groovy.",
+    "Ring": "Seven days.",
+    "Carrie": "They're all gonna laugh at you.",
+    "Blair Witch": "Stick figures hang in the trees.",
+    "Pet Sematary": "Sometimes, dead is better.",
+    "The Exorcist": "The power of Christ compels you.",
+    "Hereditary": "Listen for the tongue click.",
+    "The Vvitch": "Wouldst thou like to live deliciously?",
+    "The Witch (Robert Eggers)": "Wouldst thou like to live deliciously?",
+    "Ju-on: The Grudge": "That croaking sound on the stairs.",
+    "Nosferatu": "Count Orlok's shadow climbs the stairs.",
+    "Suspiria": "The Three Mothers.",
+    "Inferno": "The Three Mothers.",
+    "The Changeling": "A rubber ball bounces down the stairs.",
+    "The Brood": "Cronenberg's rage-born children.",
+    "It Comes at Night": "Always keep the red door locked.",
+    "Exit 8": "Notice every anomaly. Turn back if you do.",
+    "Possession": "The subway scene.",
+    "Evil Dead Rise": "Do not read from the book.",
+    "Psycho Killer": "Mother is not herself today."
+  };
+
+  /* ============ END OF EDIT SECTION ============ */
+
+  document.title = SITE.title;
+  document.getElementById("title").textContent = SITE.title;
+  document.getElementById("forLine").textContent = "A collection for " + SITE.friendName;
+  document.getElementById("note").textContent = SITE.note;
+  const foot = document.getElementById("footer");
+  foot.textContent = SITE.footer + " ";
+  foot.appendChild(document.createElement("span")).className = "seven";
+  foot.lastChild.textContent = "You have seven days.";
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  const shelf = document.getElementById("shelf");
+  const nav = document.getElementById("nav");
+
+  TIERS.forEach(function (tier, i) {
+    const sec = el("section");
+    sec.id = "tier" + (i + 1);
+    sec.className = "t" + (i + 1);
+    if (i === 3) sec.dataset.whisper = "All work and no play makes Jack a dull boy. ".repeat(80);
+
+    const head = el("div", "tier-head");
+    const h2 = el("h2", "", tier.name + " ");
+    h2.appendChild(el("span", "count", "(" + tier.movies.length + ")"));
+    head.appendChild(h2);
+    head.appendChild(el("p", "", tier.desc));
+    head.appendChild(el("p", "prop", PROPS[i] || ""));
+    sec.appendChild(head);
+
+    const grid = el("div", "grid");
+    tier.movies.forEach(function (m, k) {
+      const card = m.l ? el("a", "movie") : el("div", "movie");
+      card.dataset.tag = TAGS[k % TAGS.length];
+      if (m.l) {
+        card.href = m.l; card.target = "_blank"; card.rel = "noopener noreferrer";
+        card.setAttribute("aria-label", "Open " + m.t);
+      }
+
+      const art = el("div", "art");
+      art.appendChild(el("div", "ph", m.t));
+      if (m.p) {
+        const img = el("img");
+        img.src = m.p; img.alt = "Poster for " + m.t; img.loading = "lazy";
+        img.onerror = function () { img.remove(); };
+        art.appendChild(img);
+      }
+      art.appendChild(el("div", "badge", m.q));
+      card.appendChild(art);
+
+      const label = el("div", "label");
+      label.appendChild(el("strong", "", m.t));
+      if (m.y) label.appendChild(el("span", "yr", m.y));
+      const meta = [m.a, m.n].filter(Boolean).join(" | ");
+      if (meta) label.appendChild(el("p", "meta", meta));
+      if (EGGS[m.t]) card.appendChild(el("p", "whisper", EGGS[m.t]));
+      card.appendChild(label);
+
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+    shelf.appendChild(sec);
+
+    const link = el("a", "", "Aisle " + tier.name.split(":")[0].replace("Tier ", ""));
+    link.href = "#" + sec.id;
+    nav.appendChild(link);
+  });
+
+  const lights = document.getElementById("lights");
+  lights.addEventListener("click", function () {
+    const on = document.body.classList.toggle("dark");
+    lights.setAttribute("aria-pressed", on);
+    lights.textContent = on ? "Lights: off" : "Lights: on";
+  });
+  window.addEventListener("pointermove", function (e) {
+    document.documentElement.style.setProperty("--x", e.clientX + "px");
+    document.documentElement.style.setProperty("--y", e.clientY + "px");
+  });
+  let clicks = 0;
+  document.getElementById("title").addEventListener("click", function () {
+    if (++clicks < 3) return;
+    clicks = 0;
+    const t = el("div", "toast", "Here's Johnny!");
+    document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2200);
+  });
+  console.log("Redrum. (Hello, curious one. Happy birthday.)");
+</script>
+</body>
+</html>
